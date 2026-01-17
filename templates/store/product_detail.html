@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% load static %}
 
 {% block content %}
@@ -7,118 +6,153 @@
 <section class="section-content padding-y bg">
     <div class="container">
 
-        <!-- ============================ COMPONENT 1 ================================= -->
         <div class="card">
             <div class="row no-gutters">
+
+                <!-- PRODUCT IMAGE -->
                 <aside class="col-md-6">
                     <article class="gallery-wrap">
                         <div class="img-big-wrap">
-                            <a href="#"><img src="{{ single_product.images.url }}"></a>
-                        </div> <!-- img-big-wrap.// -->
-
-                    </article> <!-- gallery-wrap .end// -->
+                            <img src="{{ single_product.images.url }}" class="img-fluid">
+                        </div>
+                    </article>
                 </aside>
+
+                <!-- PRODUCT DETAILS -->
                 <main class="col-md-6 border-left">
                     <article class="content-body">
 
                         <h2 class="title">{{ single_product.product_name }}</h2>
 
                         <div class="mb-3">
-                            <var class="price h4">${{ single_product.price }}</var>
+                            <var class="price h4">₹ {{ single_product.price }}</var>
                         </div>
 
                         <p>{{ single_product.description }}</p>
 
-
                         <hr>
-                        <div class="row">
-                            <div class="item-option-select">
-                                <h6>Choose Color</h6>
-                                <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
-                                    <label class="btn btn-light">
-                                        <input type="radio" name="radio_color"> Silver
-                                    </label>
-                                    <label class="btn btn-light">
-                                        <input type="radio" name="radio_color"> Gray
-                                    </label>
-                                    <label class="btn btn-light active">
-                                        <input type="radio" name="radio_color checked"> Gold
-                                    </label>
-                                    <label class="btn btn-light">
-                                        <input type="radio" name="radio_color"> Black
-                                    </label>
+
+                        {% if single_product.stock <= 0 %} <button class="btn btn-secondary" disabled>Out of
+                            Stock</button>
+                            {% else %}
+
+                            <form id="addToCartForm" action="{% url 'add_cart' single_product.id %}" method="POST">
+                                {% csrf_token %}
+
+                                <div class="mb-3">
+                                    <h6>Choose Color</h6>
+                                    <select name="color" id="colorSelect" class="form-control" required>
+                                        <option value="">Select Color</option>
+                                        {% for color in color_size_map.keys %}
+                                        <option value="{{ color }}">{{ color }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
-                            </div>
-                        </div> <!-- row.// -->
-                        <div class="row">
-                            <div class="item-option-select">
-                                <h6>Select Size</h6>
-                                <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
-                                    <label class="btn btn-light">
-                                        <input type="radio" name="radio_color"> S
-                                    </label>
-                                    <label class="btn btn-light active">
-                                        <input type="radio" name="radio_color" checked> M
-                                    </label>
-                                    <label class="btn btn-light">
-                                        <input type="radio" name="radio_color"> L
-                                    </label>
-                                    <label class="btn btn-light">
-                                        <input type="radio" name="radio_color"> XL
-                                    </label>
+
+                                <div class="mb-3">
+                                    <h6>Select Size</h6>
+                                    <div id="sizeButtons" class="d-flex flex-wrap">
+                                        {% for size in all_sizes %}
+                                        <button type="button" class="btn btn-outline-secondary m-1 size-btn"
+                                            data-size="{{ size }}" disabled>
+                                            {{ size }}
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+
+                                    <input type="hidden" name="size" id="selectedSize">
                                 </div>
-                            </div>
-                        </div> <!-- row.// -->
-                        <hr>
-                        {% if single_product.stock > 0 %}
-                        <a href="{{ single_product.get_url }}" class="btn  btn-primary"> <span class="text">Add to
-                                cart</span>
-                            <i class="fas fa-shopping-cart"></i> </a>
-                        {% else %}
-                        <button class="btn  btn-secondary" disabled>Out of Stock</button>
-                        {% endif %}
-                    </article> <!-- product-info-aside .// -->
-                </main> <!-- col.// -->
-            </div> <!-- row.// -->
-        </div> <!-- card.// -->
-        <!-- ============================ COMPONENT 1 END .// ================================= -->
 
-        <br>
+                                <button id="cartBtn" type="submit" class="btn btn-primary">
+                                    Add to Cart
+                                </button>
+                            </form>
 
-        <div class="row">
-            <div class="col-md-9">
+                            {% endif %}
 
-                <header class="section-heading">
-                    <h3>Customer Reviews </h3>
+                    </article>
+                </main>
 
-                </header>
+            </div>
+        </div>
 
-                <article class="box mb-3">
-                    <div class="icontext w-100">
-                        <img src="{% static 'images/avatars/avatar1.jpg' %}" class="img-xs icon rounded-circle">
-                        <div class="text">
-                            <span class="date text-muted float-md-right">24.04.2020 </span>
-                            <h6 class="mb-1">Mike John </h6>
-
-                        </div>
-                    </div> <!-- icontext.// -->
-                    <div class="mt-3">
-                        <p>
-                            Dummy comment Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                            quis nostrud exercitation ullamco laboris nisi ut aliquip
-                        </p>
-                    </div>
-                </article>
-
-
-
-            </div> <!-- col.// -->
-        </div> <!-- row.// -->
-
-
-    </div> <!-- container .//  -->
+    </div>
 </section>
-<!-- ========================= SECTION CONTENT END// ========================= -->
+
+<!-- JS -->
+<script>
+    const colorSizeMap = {{ color_size_map| safe }};
+    const productId = "{{ single_product.id }}";
+
+    const colorSelect = document.getElementById('colorSelect');
+    const sizeButtons = document.querySelectorAll('.size-btn');
+    const sizeInput = document.getElementById('selectedSize');
+    const cartBtn = document.getElementById('cartBtn');
+
+    // RESET button to default
+    function resetCartButton() {
+        cartBtn.innerText = 'Add to Cart';
+        cartBtn.disabled = false;
+    }
+
+    // When COLOR changes
+    colorSelect.addEventListener('change', () => {
+        const selectedColor = colorSelect.value;
+        console.log(selectedColor)
+
+        // reset size
+        sizeInput.value = '';
+        resetCartButton();
+
+        sizeButtons.forEach(btn => {
+            btn.classList.remove('active');
+            btn.disabled = true;
+
+            if (selectedColor && colorSizeMap[selectedColor]?.includes(btn.dataset.size)) {
+                btn.disabled = false;
+            }
+        });
+    });
+
+    // When SIZE clicked
+    sizeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            sizeButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            sizeInput.value = btn.dataset.size;
+            resetCartButton();
+
+            checkCart();
+        });
+    });
+
+    function checkCart() {
+        const color = colorSelect.value;
+        const size = sizeInput.value;
+
+        if (!color || !size) return;
+
+        fetch(`/cart/check-cart-variation/?product_id=${productId}&color=${color}&size=${size}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.in_cart) {
+                    console.log(data)
+                    cartBtn.innerText = 'Added to Cart';
+                    cartBtn.disabled = true;
+                } else {
+                    resetCartButton();
+                }
+            });
+    }
+</script>
+
+<style>
+    .size-btn.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+</style>
 
 {% endblock %}

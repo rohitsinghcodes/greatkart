@@ -20,3 +20,17 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_name
+
+
+class ProductVariation(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    color = models.CharField(max_length=50)
+    size = models.CharField(max_length=50)
+    stock = models.PositiveIntegerField()
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('product', 'color', 'size')
+
+    def __str__(self):
+        return f"{self.product} - {self.color} - {self.size}"
