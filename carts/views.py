@@ -3,8 +3,10 @@ from store.models import Product, ProductVariation
 from .models import Cart, CartItem
 from django.db.models import Q, Count
 from django.http import HttpResponseBadRequest, JsonResponse
+from django.contrib.auth.decorators import login_required
 
 
+@login_required(login_url='login')
 def cart_id(request):
     cart = request.session.session_key
     if not cart:
@@ -74,7 +76,7 @@ def remove_cart(request, cart_item_id):
 
     return redirect('cart')
 
-
+@login_required(login_url='login')
 def cart(request):
     total = 0
     quantity = 0

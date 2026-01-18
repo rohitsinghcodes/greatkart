@@ -6,9 +6,10 @@ from carts.models import CartItem
 from django.core.paginator import Paginator
 from django.db.models import Q
 from collections import defaultdict
+from django.contrib.auth.decorators import login_required
 
 
-
+@login_required(login_url='login')
 def store(request, category_slug=None):
     products = None
 
@@ -32,6 +33,7 @@ def store(request, category_slug=None):
     return render(request, 'store/store.html', context)
 
 
+@login_required(login_url='login')
 def product_detail(request, category_slug, product_slug):
     single_product = get_object_or_404(
         Product,
@@ -62,6 +64,7 @@ def product_detail(request, category_slug, product_slug):
     return render(request, 'store/product_detail.html', context)
 
 
+@login_required(login_url='login')
 def search(request):
     keyword = request.GET.get('keyword')
     products = Product.objects.none()
