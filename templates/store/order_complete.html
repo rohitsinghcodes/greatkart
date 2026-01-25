@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="section-content padding-y">
+    <div class="container">
+
+        <div class="text-center mb-4">
+            <h2 class="text-success">🎉 Order Confirmed!</h2>
+            <p>Thank you for your purchase, {{ order.user.first_name }}!</p>
+            <hr>
+        </div>
+
+        <!-- Billing Details -->
+        <h5>Billing Details</h5>
+        <p><strong>Name:</strong> {{ order.first_name }} {{ order.last_name }}</p>
+        <p><strong>Email:</strong> {{ order.email }}</p>
+        <p><strong>Phone:</strong> {{ order.phone }}</p>
+        <p><strong>Address:</strong> {{ order.address_line_1 }}, {{ order.address_line_2 }}, {{ order.city }}, {{
+            order.state }}, {{ order.country }}</p>
+        <p><strong>Order Note:</strong> {{ order.order_note }}</p>
+
+        <hr>
+
+        <!-- Order Summary -->
+        <h5>Order Summary</h5>
+        {% for item in ordered_products %}
+        <div class="row mb-3">
+            <div class="col-3">
+                <img src="{{ item.product.images.url }}" class="img-sm">
+            </div>
+            <div class="col-6">
+                <p class="mb-1">{{ item.product.product_name }}</p>
+                <small class="text-muted">Qty: {{ item.quantity }}</small>
+            </div>
+            <div class="col-3 text-right">
+                ₹ {{ item.product_price }}
+            </div>
+        </div>
+        {% endfor %}
+
+        <hr>
+
+        <dl class="dlist-align">
+            <dt>Total:</dt>
+            <dd class="text-right">₹ {{ order.order_total|floatformat:2 }}</dd>
+        </dl>
+        <dl class="dlist-align">
+            <dt>Tax:</dt>
+            <dd class="text-right">₹ {{ order.tax|floatformat:2 }}</dd>
+        </dl>
+        <dl class="dlist-align">
+            <dt>Grand Total:</dt>
+            <dd class="text-right text-dark">
+                <strong>₹ {{ order.order_total|floatformat:2 }}</strong>
+            </dd>
+        </dl>
+
+        <hr>
+
+        <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+        <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+
+        <a href="{% url 'store' %}" class="btn btn-primary mt-3">Continue Shopping</a>
+
+    </div>
+</section>
+
+{% endblock %}

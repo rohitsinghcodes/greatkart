@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="section-content padding-y bg">
+    <div class="container">
+        <form action="{% url 'place_order' %}" method="POST">
+            {% csrf_token %}
+
+            <div class="row">
+
+                <!-- ================= CHECKOUT FORM ================= -->
+                <aside class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <h4 class="card-title mb-4">Billing Details</h4>
+
+                            <div class="form-row">
+                                <div class="col form-group">
+                                    <label>First Name</label>
+                                    {{ form.first_name }}
+                                </div>
+                                <div class="col form-group">
+                                    <label>Last Name</label>
+                                    {{ form.last_name }}
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="col form-group">
+                                    <label>Email</label>
+                                    {{ form.email }}
+                                </div>
+                                <div class="col form-group">
+                                    <label>Phone</label>
+                                    {{ form.phone }}
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Address Line 1</label>
+                                {{ form.address_line_1 }}
+                            </div>
+
+                            <div class="form-group">
+                                <label>Address Line 2</label>
+                                {{ form.address_line_2 }}
+                            </div>
+
+                            <div class="form-row">
+                                <div class="col form-group">
+                                    <label>City</label>
+                                    {{ form.city }}
+                                </div>
+                                <div class="col form-group">
+                                    <label>State</label>
+                                    {{ form.state }}
+                                </div>
+                                <div class="col form-group">
+                                    <label>Country</label>
+                                    {{ form.country }}
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Order Note</label>
+                                {{ form.order_note }}
+                            </div>
+
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- ================= ORDER SUMMARY ================= -->
+                <aside class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <h4 class="card-title mb-4">Order Summary</h4>
+
+                            <dl class="dlist-align">
+                                <dt>Total price:</dt>
+                                <dd class="text-right">₹ {{ total }}</dd>
+                            </dl>
+
+                            <dl class="dlist-align">
+                                <dt>Tax:</dt>
+                                <dd class="text-right">₹ {{ tax }}</dd>
+                            </dl>
+
+                            <dl class="dlist-align">
+                                <dt>Grand Total:</dt>
+                                <dd class="text-right text-dark">
+                                    <strong>₹ {{ grand_total }}</strong>
+                                </dd>
+                            </dl>
+
+                            <hr>
+
+                            <button type="submit" class="btn btn-primary btn-block">
+                                Place Order
+                            </button>
+
+                            <a href="{% url 'store' %}" class="btn btn-light btn-block">
+                                Continue Shopping
+                            </a>
+
+                        </div>
+                    </div>
+                </aside>
+
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

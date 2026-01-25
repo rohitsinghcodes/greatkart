@@ -1,7 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from store.models import Product, ProductVariation
 from category.models import Category
-from carts.views import cart_id
 from carts.models import CartItem
 from django.core.paginator import Paginator
 from django.db.models import Q
