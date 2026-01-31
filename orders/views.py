@@ -4,6 +4,7 @@ from carts.models import CartItem
 from .forms import OrderForm
 from .models import Order, OrderProduct
 import datetime
+from django.http import HttpResponse
 
 @login_required(login_url='login')
 def checkout(request):
@@ -24,7 +25,7 @@ def checkout(request):
         'tax': tax,
         'grand_total': grand_total,
     }
-    return render(request, 'store/checkout.html', context)
+    return render(request, 'orders/checkout.html', context)
 
 @login_required(login_url='login')
 def place_order(request):
@@ -58,7 +59,7 @@ def place_order(request):
         'tax': tax,
         'grand_total': grand_total,
     }
-    return render(request, 'store/place_order.html', context)
+    return render(request, 'orders/place_order.html', context)
 
 
 @login_required(login_url='login')
@@ -196,4 +197,25 @@ def order_complete(request):
         'order': order,
         'ordered_products': ordered_products,
     }
-    return render(request, 'store/order_complete.html', context)
+    return render(request, 'orders/order_complete.html', context)
+
+
+@login_required(login_url='login')
+def my_orders(request):
+    status_filter = request.GET.get('status', 'all')  # default = all
+
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+
+    if status_filter != 'all':
+        orders = orders.filter(status=status_filter)
+
+    status_options = ['all', 'New', 'Accepted', 'Completed', 'Cancelled']
+
+    context = {
+        'orders': orders,
+        'status_filter': status_filter,
+        'status_options': status_options
+    }
+
+    return render(request, 'orders/my_orders.html', context)
+

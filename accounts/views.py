@@ -1,11 +1,14 @@
 from django.shortcuts import render
 from .froms import RegistrationForm, LoginForm
 from .models import Account
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth, messages
 from django.http import HttpResponse
+from django.db.models import Sum
+
+
 
 # Verification email
 from django.contrib.sites.shortcuts import get_current_site
@@ -14,6 +17,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from orders.models import Order
 
 
 # Create your views here.
@@ -102,9 +106,33 @@ def logout(request):
 def activate(request, uidb64, token):
     return HttpResponse('ok')
 
+
 @login_required(login_url='login')
 def dashboard(request):
-    return render(request, 'accounts/dashboard.html')
+
+    orders = Order.objects.filter(user=request.user)
+
+    total_orders = orders.count()
+    delivered_orders = orders.filter(status='Completed').count()
+    cancelled_orders = orders.filter(status='Cancelled').count()
+    new_orders = orders.filter(status='New').count()
+    accepted_orders = orders.filter(status='Accepted').count()
+
+    total_spent = orders.filter(
+        status='Completed'
+    ).aggregate(total=Sum('order_total'))['total'] or 0
+
+    context = {
+        'total_orders': total_orders,
+        'completed_orders': delivered_orders,
+        'cancelled_orders': cancelled_orders,
+        'new_orders': new_orders,
+        'accepted_orders': accepted_orders,
+        'total_spent': total_spent,
+    }
+
+    return render(request, 'accounts/dashboard.html', context)
+
 
 
 def forgot_password(request):
@@ -193,3 +221,31 @@ def reset_password(request):
         return redirect('login')
 
     return render(request, 'accounts/reset_password.html')
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        current = request.POST.get('current_password')
+        new = request.POST.get('new_password')
+        confirm = request.POST.get('confirm_password')
+        print("CURRENT:", current)
+        print("NEW:", new)
+        print("CONFIRM:", confirm)
+
+        if not request.user.check_password(current):
+            messages.error(request, 'Current password is wrong.')
+            return redirect('change_password')
+
+        if new != confirm:
+            messages.error(request, 'Passwords do not match.')
+            return redirect('change_password')
+
+        request.user.set_password(new)
+        request.user.save()
+        update_session_auth_hash(request, request.user)
+
+        messages.success(request, 'Password changed.')
+        return redirect('dashboard')
+
+    return render(request, 'accounts/change_password.html')

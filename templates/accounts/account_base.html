@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section-content padding-y bg">
+    <div class="container">
+        <div class="row">
+
+            <!-- SIDEBAR (COMMON) -->
+            <aside class="col-md-3 mb-4">
+                <ul class="list-group">
+                    <a href="{% url 'dashboard' %}" class="list-group-item
+                        {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fa fa-user"></i> Dashboard
+                    </a>
+
+                    <a href="{% url 'my_orders' %}" class="list-group-item
+                        {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}">
+                        <i class="fa fa-shopping-bag"></i> My Orders
+                    </a>
+
+
+                    <a href="{% url 'change_password' %}" class="list-group-item">
+                        <i class="fa fa-lock"></i> Change Password
+                    </a>
+                </ul>
+
+                <br>
+                <a href="{% url 'logout' %}" class="btn btn-light btn-block">
+                    <i class="fa fa-power-off"></i> Logout
+                </a>
+            </aside>
+
+            <!-- CHILD CONTENT -->
+            <main class="col-md-9">
+                {% block account_content %}
+                {% endblock %}
+            </main>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

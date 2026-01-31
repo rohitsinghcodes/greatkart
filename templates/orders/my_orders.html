@@ -1,0 +1,136 @@
+{% extends 'accounts/account_base.html' %}
+
+{% block account_content %}
+<h4>My Orders</h4>
+<!-- MAIN CONTENT -->
+<main class="col-md-9">
+
+    <!-- PAGE TITLE -->
+    <div class="mb-4">
+        <h4 class="mb-1">📦 My Orders</h4>
+        <p class="text-muted mb-0">
+            Track, view, and manage your orders
+        </p>
+    </div>
+    <div class="mb-4 d-flex flex-wrap gap-2">
+
+        {% for status in status_options %}
+        <a href="?status={{ status }}" class="btn btn-sm m-2
+           {% if status_filter == status %}btn-primary{% else %}btn-outline-primary{% endif %}">
+
+            {% if status == 'all' %}
+            All
+            {% elif status == 'New' %}
+            🆕 New
+            {% elif status == 'Accepted' %}
+            📦 Accepted
+            {% elif status == 'Completed' %}
+            ✅ Completed
+            {% elif status == 'Cancelled' %}
+            ❌ Cancelled
+            {% endif %}
+
+        </a>
+        {% endfor %}
+
+    </div>
+
+
+    {% if orders %}
+    {% for order in orders %}
+    <article class="card mb-4 shadow-sm">
+
+        <!-- ORDER HEADER -->
+        <header class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Order #{{ order.order_number }}</strong><br>
+                <small class="text-muted">
+                    Placed on {{ order.created_at|date:"d M Y" }}
+                </small>
+            </div>
+
+            <span class="badge 
+                            {% if order.status == 'Delivered' %}badge-success
+                            {% elif order.status == 'Cancelled' %}badge-danger
+                            {% else %}badge-warning{% endif %}">
+                {{ order.status }}
+            </span>
+        </header>
+
+        <!-- ORDER BODY -->
+        <div class="card-body">
+
+            <div class="row mb-3">
+                <!-- Address -->
+                <div class="col-md-8">
+                    <h6 class="text-muted">Delivery Address</h6>
+                    <p class="mb-0">
+                        {{ order.full_name }} <br>
+                        {{ order.full_address }},
+                        {{ order.city }},
+                        {{ order.state }} - {{ order.pincode }} <br>
+                        Phone: {{ order.phone }}
+                    </p>
+                </div>
+
+                <!-- Payment -->
+                <div class="col-md-4">
+                    <h6 class="text-muted">Payment</h6>
+                    <p class="mb-0">
+                        Method: {{ order.payment_method }} <br>
+                        <strong>Total: ₹{{ order.order_total }}</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- PRODUCTS -->
+            <div class="table-responsive">
+                <table class="table table-sm table-borderless">
+                    <thead class="text-muted">
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.orderproduct_set.all %}
+                        <tr>
+                            <td>
+                                <img src="{{ item.product.images.url }}" class="img-xs border mr-2">
+                                {{ item.product.product_name }}
+                            </td>
+                            <td>{{ item.quantity }}</td>
+                            <td>₹{{ item.product_price }}</td>
+                            <!-- <td class="text-right">
+                                <a href="#" class="btn btn-sm btn-outline-primary">
+                                    View
+                                </a>
+                            </td> -->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </article>
+    {% endfor %}
+
+    {% else %}
+    <!-- EMPTY STATE -->
+    <div class="card text-center p-5">
+        <h5>No orders yet 😕</h5>
+        <p class="text-muted mb-3">
+            You haven’t placed any orders.
+        </p>
+        <a href="{% url 'store' %}" class="btn btn-primary">
+            Continue Shopping
+        </a>
+    </div>
+    {% endif %}
+
+</main>
+<!-- orders UI here -->
+{% endblock %}
